@@ -6,6 +6,8 @@
   <!-- Permissions options for the `notification` group -->
   <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
   <application>
+    <activity
+      android:name=".FlutterBadgeNotification" />
     <service
       android:name=".FlutterFirebaseMessagingBackgroundService"
       android:permission="android.permission.BIND_JOB_SERVICE"
@@ -26,7 +28,7 @@
     </receiver>
     <service android:name="com.google.firebase.components.ComponentDiscoveryService">
       <meta-data android:name="com.google.firebase.components:io.flutter.plugins.firebase.messaging.FlutterFirebaseAppRegistrar"
-                 android:value="com.google.firebase.components.ComponentRegistrar" />
+        android:value="com.google.firebase.components.ComponentRegistrar" />
     </service>
     <provider
       android:name=".FlutterFirebaseMessagingInitProvider"

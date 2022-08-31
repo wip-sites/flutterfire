@@ -4,13 +4,20 @@
 
 package io.flutter.plugins.firebase.messaging;
 
+import io.flutter.plugin.common.MethodChannel;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.google.firebase.messaging.RemoteMessage;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
   private static final String TAG = "FLTFireMsgReceiver";
@@ -25,8 +32,8 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
 
     if (intent.getExtras() == null) {
       Log.d(
-          TAG,
-          "broadcast received but intent contained no extras to process RemoteMessage. Operation cancelled.");
+        TAG,
+        "broadcast received but intent contained no extras to process RemoteMessage. Operation cancelled.");
       return;
     }
 
@@ -52,10 +59,28 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
     //    App in Background/Quit
     //   ------------------------
     Intent onBackgroundMessageIntent =
-        new Intent(context, FlutterFirebaseMessagingBackgroundService.class);
+      new Intent(context, FlutterFirebaseMessagingBackgroundService.class);
     onBackgroundMessageIntent.putExtra(
-        FlutterFirebaseMessagingUtils.EXTRA_REMOTE_MESSAGE, remoteMessage);
+      FlutterFirebaseMessagingUtils.EXTRA_REMOTE_MESSAGE, remoteMessage);
     FlutterFirebaseMessagingBackgroundService.enqueueMessageProcessing(
-        context, onBackgroundMessageIntent);
+      context, onBackgroundMessageIntent);
+    if(remoteMessage.getData().containsKey("chat")){
+      Log.d(TAG, "This is "+remoteMessage.getData().get("chat"));
+      File path = context.getFilesDir();
+      File file = new File(path, "user.text");
+
+      FileOutputStream stream = null;
+      try {
+        stream = new FileOutputStream(file);
+        stream.write(remoteMessage.getData().get("chat").getBytes());
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
+      FlutterBadgeNotification flutterBadgeNotification = new FlutterBadgeNotification();
+      flutterBadgeNotification.setBadge(context, 1);
+    }
   }
 }
